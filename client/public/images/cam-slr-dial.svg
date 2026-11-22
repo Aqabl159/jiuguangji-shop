@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="快门拨盘局部特写">
+  <defs>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2"/><feColorMatrix values="0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0 0.25 0 0 0 0.05 0"/></filter>
+    <pattern id="holes" width="24" height="8" patternUnits="userSpaceOnUse">
+      <rect x="8" y="0" width="4" height="8" fill="#f6ecd8"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="#f6ecd8"/>
+  <rect width="400" height="300" filter="url(#grain)"/>
+  <!-- 拨盘特写 -->
+  <circle cx="200" cy="150" r="86" fill="#2b2118" stroke="#b98a2f" stroke-width="4"/>
+  <circle cx="200" cy="150" r="66" fill="none" stroke="#8c4a2f" stroke-width="1.5"/>
+  <!-- 速度刻度 -->
+  <g stroke="#b98a2f" stroke-width="2.5" stroke-linecap="round">
+    <line x1="200" y1="72" x2="200" y2="86"/><line x1="200" y1="214" x2="200" y2="228"/>
+    <line x1="122" y1="150" x2="136" y2="150"/><line x1="264" y1="150" x2="278" y2="150"/>
+    <line x1="145" y1="95" x2="155" y2="105"/><line x1="245" y1="105" x2="255" y2="95"/>
+    <line x1="145" y1="205" x2="155" y2="195"/><line x1="245" y1="195" x2="255" y2="205"/>
+  </g>
+  <g font-family="Courier New, monospace" font-size="11" fill="#e8d9a8">
+    <text x="200" y="104" text-anchor="middle">500</text>
+    <text x="200" y="212" text-anchor="middle">60</text>
+    <text x="132" y="156" text-anchor="middle">125</text>
+    <text x="268" y="156" text-anchor="middle">250</text>
+  </g>
+  <circle cx="200" cy="150" r="34" fill="none" stroke="#8c4a2f" stroke-width="2" stroke-dasharray="3 5"/>
+  <circle cx="200" cy="150" r="12" fill="#1a130d" stroke="#b98a2f" stroke-width="2"/>
+  <line x1="200" y1="150" x2="200" y2="116" stroke="#b98a2f" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- 胶卷齿孔条 -->
+  <rect y="276" width="400" height="24" fill="#2b2118"/>
+  <rect y="279" width="400" height="8" fill="url(#holes)"/>
+  <rect y="289" width="400" height="8" fill="url(#holes)"/>
+  <text x="16" y="26" font-family="Courier New, monospace" font-size="11" fill="#9c8d78">JGJ-NO.03</text>
+</svg>

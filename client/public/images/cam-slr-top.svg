@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="单反相机顶面剪影">
+  <defs>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2"/><feColorMatrix values="0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0 0.25 0 0 0 0.05 0"/></filter>
+    <pattern id="holes" width="24" height="8" patternUnits="userSpaceOnUse">
+      <rect x="8" y="0" width="4" height="8" fill="#f6ecd8"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="#f6ecd8"/>
+  <rect width="400" height="300" filter="url(#grain)"/>
+  <!-- 顶面机身 -->
+  <rect x="112" y="104" width="176" height="110" rx="8" fill="#2b2118"/>
+  <rect x="122" y="114" width="156" height="90" rx="4" fill="none" stroke="#8c4a2f" stroke-width="1.5" opacity="0.6"/>
+  <!-- 五棱镜 -->
+  <rect x="178" y="72" width="44" height="40" rx="4" fill="#2b2118"/>
+  <text x="200" y="96" text-anchor="middle" font-family="Courier New, monospace" font-size="9" letter-spacing="1" fill="#b98a2f">FM2</text>
+  <!-- 热靴 -->
+  <rect x="168" y="58" width="64" height="16" rx="2" fill="#2b2118"/>
+  <line x1="168" y1="64" x2="232" y2="64" stroke="#b98a2f" stroke-width="2"/>
+  <!-- 过片/倒片拨轮 -->
+  <circle cx="140" cy="148" r="18" fill="#4a372a" stroke="#b98a2f" stroke-width="2"/>
+  <circle cx="140" cy="148" r="8" fill="none" stroke="#b98a2f" stroke-width="1.5" stroke-dasharray="2 3"/>
+  <circle cx="262" cy="148" r="16" fill="#4a372a" stroke="#b98a2f" stroke-width="2"/>
+  <!-- 快门速度盘 -->
+  <circle cx="200" cy="150" r="24" fill="#2b2118" stroke="#b98a2f" stroke-width="2.5"/>
+  <g stroke="#b98a2f" stroke-width="1.5">
+    <line x1="200" y1="130" x2="200" y2="136"/><line x1="200" y1="164" x2="200" y2="170"/>
+    <line x1="180" y1="150" x2="186" y2="150"/><line x1="214" y1="150" x2="220" y2="150"/>
+    <line x1="186" y1="136" x2="190" y2="140"/><line x1="210" y1="140" x2="214" y2="136"/>
+  </g>
+  <circle cx="200" cy="150" r="5" fill="#b98a2f"/>
+  <!-- 胶卷齿孔条 -->
+  <rect y="276" width="400" height="24" fill="#2b2118"/>
+  <rect y="279" width="400" height="8" fill="url(#holes)"/>
+  <rect y="289" width="400" height="8" fill="url(#holes)"/>
+  <text x="16" y="26" font-family="Courier New, monospace" font-size="11" fill="#9c8d78">JGJ-NO.02</text>
+</svg>

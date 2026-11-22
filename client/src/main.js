@@ -8,6 +8,7 @@ import router from './router';
 import './assets/styles/theme.css';
 import './assets/styles/base.css';
 import './assets/styles/retro.css';
+import './assets/styles/shop.css';
 
 const app = createApp(App);
 

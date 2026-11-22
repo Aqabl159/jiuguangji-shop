@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="950" viewBox="0 0 1500 950">
+  <defs>
+    <marker id="arrOpen" markerWidth="11" markerHeight="11" refX="8" refY="3.5" orient="auto">
+      <path d="M0,0 L10,3.5 L0,7 z" fill="#ffffff" stroke="#8C5230" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: 'SimSun','宋体',serif; }
+    .uc { font-size: 17px; fill: #262626; }
+    .actor { font-size: 18px; fill: #262626; font-weight: bold; }
+    .boundary { font-size: 18px; fill: #8C5230; font-weight: bold; }
+    .inc { font-size: 14px; fill: #8C5230; }
+  </style>
+  <rect x="0" y="0" width="1500" height="950" fill="#ffffff"/>
+
+  <!-- 系统边界 -->
+  <rect x="420" y="40" width="1030" height="870" fill="none" stroke="#8C5230" stroke-width="1.5" stroke-dasharray="9 6"/>
+  <text class="boundary" x="438" y="72">旧光集影像器材电商网站（前台）</text>
+
+  <!-- 参与者：普通用户 -->
+  <circle cx="150" cy="388" r="16" fill="none" stroke="#404040" stroke-width="2"/>
+  <line x1="150" y1="404" x2="150" y2="452" stroke="#404040" stroke-width="2"/>
+  <line x1="128" y1="422" x2="172" y2="422" stroke="#404040" stroke-width="2"/>
+  <line x1="150" y1="452" x2="134" y2="480" stroke="#404040" stroke-width="2"/>
+  <line x1="150" y1="452" x2="166" y2="480" stroke="#404040" stroke-width="2"/>
+  <text class="actor" x="150" y="512" text-anchor="middle">普通用户</text>
+
+  <!-- 左列用例 -->
+  <g>
+    <ellipse cx="620" cy="140" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="620" y="146" text-anchor="middle">分类浏览</text>
+    <ellipse cx="620" cy="280" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="620" y="286" text-anchor="middle">关键词搜索</text>
+    <ellipse cx="620" cy="420" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="620" y="426" text-anchor="middle">多维组合筛选</text>
+    <ellipse cx="620" cy="560" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="620" y="566" text-anchor="middle">查看商品详情</text>
+    <ellipse cx="620" cy="700" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="620" y="706" text-anchor="middle">注册</text>
+    <ellipse cx="620" cy="840" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="620" y="846" text-anchor="middle">登录</text>
+  </g>
+
+  <!-- 右列用例 -->
+  <g>
+    <ellipse cx="1150" cy="140" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="1150" y="146" text-anchor="middle">管理购物车</text>
+    <ellipse cx="1150" cy="280" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="1150" y="286" text-anchor="middle">结算下单</text>
+    <ellipse cx="1150" cy="420" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="1150" y="426" text-anchor="middle">模拟支付</text>
+    <ellipse cx="1150" cy="560" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="1150" y="566" text-anchor="middle">查看订单</text>
+    <ellipse cx="1150" cy="700" rx="120" ry="36" fill="#ffffff" stroke="#404040" stroke-width="1.5"/>
+    <text class="uc" x="1150" y="706" text-anchor="middle">评价商品</text>
+  </g>
+
+  <!-- 参与者关联线 -->
+  <line x1="180" y1="440" x2="498" y2="142" stroke="#404040" stroke-width="1.5"/>
+  <line x1="180" y1="440" x2="500" y2="280" stroke="#404040" stroke-width="1.5"/>
+  <line x1="180" y1="440" x2="500" y2="420" stroke="#404040" stroke-width="1.5"/>
+  <line x1="180" y1="440" x2="500" y2="560" stroke="#404040" stroke-width="1.5"/>
+  <line x1="180" y1="440" x2="500" y2="700" stroke="#404040" stroke-width="1.5"/>
+  <line x1="180" y1="440" x2="500" y2="840" stroke="#404040" stroke-width="1.5"/>
+
+  <!-- 右列用例 include 登录 -->
+  <g stroke="#8C5230" stroke-width="1.3" stroke-dasharray="6 4" fill="none">
+    <path d="M1030,140 L1075,140 L1075,840 L746,840" marker-end="url(#arrOpen)"/>
+    <path d="M1030,280 L1075,280 L1075,840 L746,840" marker-end="url(#arrOpen)"/>
+    <path d="M1030,420 L1075,420 L1075,840 L746,840" marker-end="url(#arrOpen)"/>
+    <path d="M1030,560 L1075,560 L1075,840 L746,840" marker-end="url(#arrOpen)"/>
+    <path d="M1030,700 L1075,700 L1075,840 L746,840" marker-end="url(#arrOpen)"/>
+  </g>
+  <text class="inc" x="1034" y="130">«include»</text>
+  <text class="inc" x="1034" y="270">«include»</text>
+  <text class="inc" x="1034" y="410">«include»</text>
+  <text class="inc" x="1034" y="550">«include»</text>
+  <text class="inc" x="1034" y="690">«include»</text>
+</svg>

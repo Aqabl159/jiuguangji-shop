@@ -249,24 +249,149 @@ Pinia 与 Element Plus 是开题报告中未明确写出的技术，但属于 Vu
 **第五节 后台管理功能实现**
 写管理员登录与路由守卫、商品 CRUD、按品类动态表单、订单发货操作、用户管理、图片上传。效果图放后台商品编辑页与订单管理列表截图。代码段贴 Pinia 购物车 action（addToCart、updateQuantity、removeItem，约 20 行）。
 
-## 6. 开发顺序与里程碑
+## 6. 开发顺序与里程碑（详细路线）
 
-按导师评语"优先完成核心交易流程模块，规避初期功能冗余杂乱"的要求，开发严格按以下顺序推进，扩展功能（收藏、评价审核、数据看板）若时间不够直接砍掉，不影响核心闭环。
+按导师评语"优先完成核心交易流程模块，规避初期功能冗余杂乱"，开发严格按**依赖顺序**推进：认证 → 商品数据链路（后台录入 → 演示数据 → 前台浏览）→ 交易闭环 → 评价 → 后台收尾 → 测试截图。扩展功能（收藏、评价审核、数据看板）若时间不够直接砍掉，不影响核心闭环。每一阶段结束有明确验收点，验收通过才进入下一阶段。
 
-**第一阶段（约 2 周）工程骨架与基础数据**
-搭 Vue 3 + Vite 前端工程、Express 后端工程，配置 CORS 与 Axios 拦截器；实现用户注册登录与 JWT 签发；建 MySQL 数据库与全部表；后台实现分类管理与商品 CRUD，新增商品时按 product_type 动态渲染对应垂直属性表单（相机填快门与成色、胶卷填感光度与有效期、配件填类型与适配机型）。
+与原计划的顺序差异说明：① 用户认证从"骨架阶段"独立成第一阶段，因为交易与后台全部依赖 JWT；② 分类管理、用户管理的后台页面推迟到阶段 5 收尾，避免初期功能冗余（其只读接口仍在阶段 2 提供，供筛选面板使用）；③ 演示数据 seed 提到前台浏览之前，保证前台开发有真实形态的数据可测。
 
-**第二阶段（约 2 周）前台商品浏览**
-实现首页、分类导航、商品列表分页、关键词搜索、多维组合筛选、商品详情页（按品类差异化渲染）、多角度实拍图轮播。
+### 6.0 通用编码约定
 
-**第三阶段（约 2 周）交易闭环**
-实现购物车、结算页、订单创建事务、模拟支付、我的订单列表与详情、订单状态流转。
+| 约定 | 说明 |
+| --- | --- |
+| 后端分层 | routes/（路由挂载 + 参数接收）→ controllers/（业务逻辑，直接使用 mysql2 连接池），本系统体量不设独立 service 层 |
+| 接口风格 | RESTful，统一前缀 /api；控制器抛错统一 `throw { status, message }`，由 errorHandler 中间件兜底响应 |
+| 接口返回 | 成功：单条返回数据对象、操作返回 `{ message }`、列表返回 `{ list, total }`；失败：`{ message }` + 对应 HTTP 状态码 |
+| 鉴权 | 前台用户接口挂 auth 中间件；后台 `/api/admin/*` 全部挂 auth + requireAdmin |
+| SQL 安全 | 一律参数化查询；订单创建、支付、取消、收货、商品+检测项写入等涉及多表写操作的必须用事务 |
+| 前端分层 | api/ 封装接口函数（统一引用 request 实例）→ stores/ 管跨页状态 → views/ 页面组件；后台页面用 Element Plus，前台页面用 retro.css 自定义样式 |
+| 字段校验 | 必填/格式校验以**后端为准**（防绕过），前端只做交互提示；品类型必填差异集中在 product_type 分支 |
 
-**第四阶段（约 1 周）评价与联调**
-实现已完成订单评价、详情页评价展示；前后端联调；修 bug。
+### 6.1 阶段 0：工程骨架 ✅ 已完成
 
-**第五阶段（约 1 周）测试与截图**
-执行功能测试用例表（15-20 条），录可用性测试，截论文第 4 章全部效果图，准备演示账号与演示数据。
+- [x] MySQL 建库建表 schema.sql（10 张表 + 五档成色字典 + 分类种子）
+- [x] Express 骨架：CORS、JSON 解析、/uploads 静态目录、/api/health、404 与统一错误处理
+- [x] JWT 中间件 auth / requireAdmin（尚无路由使用）
+- [x] 前端骨架：Vue 3 + Vite + Pinia + Router + Axios + Element Plus、Vite 代理、复古主题三件套、user/cart store、首页静态版、路由守卫
+- [x] seed.js 演示账号 admin / demo
+
+### 6.2 阶段 1：用户认证闭环（约 3 天，一切功能的前提）
+
+**后端**
+1. 新建 `server/src/controllers/auth.controller.js`：
+   - `register`：校验 username（3-20 位）、password（≥6 位）、phone/email 至少其一且格式合法；用户名唯一性检查；bcrypt.hash(10)；插入 role='user'、status='active'；签发 JWT（payload：{ userId, role }，有效期 7 天）
+   - `login`：按用户名查询；bcrypt.compare 校验；status='disabled' 拒绝登录；签发 JWT
+   - `me`：按 req.user.userId 返回用户信息（脱敏，不含 password_hash）
+2. 新建 `server/src/routes/auth.routes.js`：`POST /api/auth/register`、`POST /api/auth/login`、`GET /api/auth/me`（挂 auth）
+3. app.js 挂载路由
+
+**前端**
+4. 新建 `client/src/api/auth.js`：register / login / me 接口函数
+5. 新建 `client/src/views/Login.vue`、`Register.vue`：表单 + 错误提示；登录成功调 userStore.setLogin；支持 `?redirect=` 回跳；已登录访问登录页直接回首页
+6. router 增加 /login、/register 路由，验证守卫：未登录访问 requiresAuth 页面跳登录并携带 redirect
+
+**验收**：Postman 全接口通过；demo 登录成功并回跳；重复注册/错误密码有明确提示；401 时拦截器清登录态跳登录页。
+
+### 6.3 阶段 2：商品数据链路（约 2 周，后台录入 → 演示数据 → 前台浏览）
+
+**2.1 分类与字典接口（公开，前后台共用）**
+- `category.controller.js`：`GET /api/categories`（含 parent_id 的扁平列表）
+- `condition_grade.controller.js`：`GET /api/condition-grades`（五档成色，供筛选面板与后台表单下拉）
+
+**2.2 后台商品管理（按品类动态校验 + 图片上传）**
+
+后端：
+- 新建 `server/src/middleware/upload.js`：multer diskStorage 存 server/uploads/，白名单 jpg/jpeg/png/webp，单图 ≤5MB，文件名加时间戳防冲突
+- 新建 `server/src/controllers/admin/product.controller.js`：
+  - `GET /api/admin/products`：全状态列表，keyword/type/status 筛选 + 分页
+  - `POST /api/admin/products`：按 product_type 动态校验（camera 必填 model、frame_format、condition_grade_code、source；film 必填 iso、expiry_date、storage_note；accessory 必填 accessory_type、is_new）；事务写 product + inspection_item（删除重建）+ product_image
+  - `PUT /api/admin/products/:id`：同上
+  - `PATCH /api/admin/products/:id/status`：上/下架
+  - `DELETE /api/admin/products/:id`：删除（检测项/图片表已级联）
+  - `POST /api/admin/upload`：单图上传，返回路径
+- 新建 `server/src/routes/admin.routes.js`：挂 auth + requireAdmin
+
+前端后台：
+- `client/src/views/admin/AdminLayout.vue`：侧边导航（商品/分类/订单/用户）+ 顶栏退出登录
+- `client/src/views/admin/ProductList.vue`：Element Plus 表格 + 搜索 + 上/下架 + 编辑 + 删除
+- `client/src/views/admin/ProductEdit.vue`：新建/编辑共用；先选 product_type，表单按品类动态渲染——camera：成色下拉（读字典）、画幅、快门数/状态、来源、检测项清单行编辑器（6 个固定检测项 + result + note）、多图上传（el-upload）；film：感光度、有效期、储存条件；accessory：配件类型、适配机型、是否全新
+- router 增加 /admin/*，meta.requiresAdmin
+
+**2.3 演示数据 seed（支撑前台开发与论文截图）**
+- seed.js 扩展 seedProducts()：12 条商品（相机 5、胶卷 4、配件 3），覆盖全部筛选维度取值；每条相机配 5-6 条检测项、3-5 张图（先用本地占位图，论文截图前替换实拍图）；库存设梯度值（留一件 1 库存商品供超卖测试）
+
+**2.4 前台商品浏览**
+
+后端 `server/src/controllers/product.controller.js`：
+- `GET /api/products`：参数化组合筛选——keyword（title/brand/model LIKE）、category_id、product_type、brand、priceMin/priceMax、相机 frame_format/condition_grade_code、胶卷 iso/frame_format、配件 accessory_type/is_new；排序（最新/价格）；分页返回 `{ list, total }`
+- `GET /api/products/:id`：商品 + 成色字典 JOIN + product_image（按 sort）+ inspection_item；仅 on_sale 可见
+
+前端：
+- `client/src/views/ProductList.vue`：左侧筛选面板（按当前分类动态显示维度）+ 搜索框 + 商品卡片网格 + 分页；筛选条件同步 URL query（可分享、可回退）
+- `client/src/views/ProductDetail.vue`：图片轮播 + 按 product_type 差异化渲染（相机：快门/成色标签/来源/检测清单表格/检测总结；胶卷：感光度/画幅/有效期/储存条件；配件：类型/适配机型/新旧）+ 加入购物车按钮（未登录跳登录）
+- Home.vue 分类卡片与最新上架改为接口数据
+- router 增加 /products/:id
+
+**验收**：三类商品筛选组合结果正确；详情页三类渲染正确；图片经 /uploads 代理可访问；分页正确。
+
+### 6.4 阶段 3：交易闭环（约 1.5 周，核心，含事务与超卖防护）
+
+**3.1 购物车**
+
+后端 `server/src/controllers/cart.controller.js`（全部挂 auth）：
+- `GET /api/cart`：JOIN product 返回当前价与库存
+- `POST /api/cart`：加入（同一用户同一商品 upsert 数量，UNIQUE 键兜底）
+- `PUT /api/cart/:productId`：修改数量（0 视为删除；校验不超过库存）
+- `DELETE /api/cart/:productId`
+
+前端：
+- stores/cart.js 补全 action：fetchCart / addToCart / updateQuantity / removeItem
+- `client/src/views/Cart.vue`：勾选商品 + 数量步进器 + 删除 + 合计 + 去结算
+- 首页/详情页"加入购物车"按钮接入
+
+**3.2 结算与订单创建（事务核心）**
+
+后端 `server/src/controllers/order.controller.js`：
+- `POST /api/orders`：body 含 items[{productId, quantity}] + 收货人三字段；事务流程：BEGIN → SELECT ... FOR UPDATE 逐项锁库存并校验充足（不足返回具体商品名）→ 按当前价计算总额 → INSERT order（order_no = JGJ+时间戳+随机 4 位，status='pending_pay'）→ 批量 INSERT order_item（价格快照）→ UPDATE product 扣库存 → 删除对应购物车项 → COMMIT；任一步失败 ROLLBACK
+- `GET /api/orders`：列表（状态筛选 + 分页）
+- `GET /api/orders/:id`：详情（校验归属）
+- `POST /api/orders/:id/pay`：模拟支付，校验 pending_pay → paid + paid_at（事务）
+- `POST /api/orders/:id/cancel`：仅 pending_pay 可取消，事务回补库存
+- `POST /api/orders/:id/confirm`：shipped → completed（确认收货）
+
+前端：
+- `client/src/views/Checkout.vue`：收货人/电话/地址表单 + 订单明细 + 金额确认 + 提交（防重复提交）
+- `client/src/views/Orders.vue`：状态 Tab（全部/待付款/已付款/已发货/已完成/已取消）+ 订单卡片
+- `client/src/views/OrderDetail.vue`：状态时间线 + 订单项 + 收货信息 + 按状态显示操作按钮（支付/取消/确认收货）
+
+**3.3 后台订单管理（发货）**
+- `GET /api/admin/orders`（状态筛选 + 分页）、`GET /api/admin/orders/:id`
+- `POST /api/admin/orders/:id/ship`：paid → shipped
+- `client/src/views/admin/OrderList.vue`：表格 + 状态标签 + 发货按钮 + 详情对话框
+
+**验收**：下单后库存正确扣减；库存不足拦截；**超卖测试**——库存 1 时并发两单只成一单；取消订单库存回补；状态机无非法流转（已发货不可取消）。
+
+### 6.5 阶段 4：评价闭环（约 3 天）
+
+后端 `server/src/controllers/review.controller.js`：
+- `POST /api/reviews`：校验订单归属、status='completed'、商品在订单项中、同一订单同一商品未评过；rating 1-5
+- `GET /api/products/:id/reviews`：商品评价列表（JOIN 用户名，分页）
+- 商品详情接口附带评价数量与均分
+
+前端：
+- ProductDetail.vue 评价区块：均分 + 评价列表
+- OrderDetail.vue：已完成订单显示"评价"入口 → 弹窗（星级 + 文字）提交；已评价置灰
+
+**验收**：未完成订单不能评价；重复评价被拦截；详情页评价即时可见。
+
+### 6.6 阶段 5：后台收尾与测试截图（约 1 周）
+
+- 分类管理：`GET/POST/PUT/DELETE /api/admin/categories` + `client/src/views/admin/CategoryList.vue`（一级三类与子分类维护，有商品的分类禁止删除）
+- 用户管理：`GET /api/admin/users`（分页/搜索）、`PATCH /api/admin/users/:id/status`（禁用/启用，禁用用户拒绝登录）+ `client/src/views/admin/UserList.vue`
+- 全链路联调：注册→登录→浏览→筛选→加购→下单→支付→发货→确认收货→评价 完整走通
+- 测试：执行功能测试用例表（15-20 条）；SUS 量表可用性测试
+- 截图：论文第 4 章五节全部效果图（实际运行截图）
+- 演示数据打磨：真实照片替换占位图、文案润色
 
 ## 7. 范围边界
 
